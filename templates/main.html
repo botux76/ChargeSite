@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Main Page</title>
+    <style>
+      body { font-family: Arial, sans-serif; background: #f0f4ff; margin: 0; padding: 40px; }
+      .card { max-width: 600px; margin: auto; background: white; border-radius: 10px; padding: 32px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
+      a.button { display: inline-block; margin-top: 20px; padding: 10px 16px; background: #1f6feb; color: white; text-decoration: none; border-radius: 6px; }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <h1>Welcome, {{ username }}!</h1>
+      <p>You are authenticated and can access the main page.</p>
+      <a class="button" href="{{ url_for('logout') }}">Log out</a>
+    </div>
+  </body>
+</html>

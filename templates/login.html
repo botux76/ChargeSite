@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Login</title>
+    <style>
+      body { font-family: Arial, sans-serif; background: #f7f9fc; margin: 0; padding: 0; }
+      .container { width: 320px; margin: 100px auto; padding: 24px; background: white; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+      input { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #bbb; border-radius: 4px; }
+      button { width: 100%; padding: 10px; border: none; border-radius: 4px; background: #1f6feb; color: white; cursor: pointer; }
+      button:hover { background: #155fca; }
+      .error { color: #b00020; margin-bottom: 12px; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Login</h1>
+      {% if error %}
+        <div class="error">{{ error }}</div>
+      {% endif %}
+      <form method="post">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" required autofocus>
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required>
+        <button type="submit">Sign in</button>
+      </form>
+    </div>
+  </body>
+</html>
