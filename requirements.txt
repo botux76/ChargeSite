@@ -1,2 +1,3 @@
 Flask>=2.0
 itsdangerous>=2.0
+py_uconnect>=0.4.0

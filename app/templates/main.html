@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>FIAT 500 Info Site</title>
+    <style>
+      body { font-family: Arial, sans-serif; background: #f0f4ff; margin: 0; padding: 40px; }
+      .card { position: relative; max-width: 700px; margin: auto; background: white; border-radius: 10px; padding: 32px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
+      .status-band { background: linear-gradient(90deg, #dbeafe, #eff6ff); padding: 20px; border-radius: 14px; margin: 24px 0; }
+      .vehicle-info { display: grid; gap: 8px; margin-top: 12px; color: #334155; font-size: 0.95rem; }
+      .error-box { display: none; margin-top: 16px; padding: 12px 14px; background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; border-radius: 10px; }
+      .loading-overlay {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(15, 23, 42, 0.08);
+        backdrop-filter: blur(4px);
+        z-index: 10;
+      }
+      .loading-content {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 18px 22px;
+        background: white;
+        border-radius: 14px;
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
+        color: #0f172a;
+        font-weight: 600;
+      }
+      .loading-spinner {
+        width: 18px;
+        height: 18px;
+        border: 3px solid #cbd5e1;
+        border-top-color: #1f6feb;
+        border-radius: 50%;
+        animation: spin 0.85s linear infinite;
+      }
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+      .status-grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+      .status-grid-secondary { margin-top: 24px; }
+      .lock-status-row { background: #f8fafc; padding: 20px; border-radius: 14px; }
+      .status-item { padding: 18px; border: 1px solid #dbeafe; border-radius: 10px; background: rgba(255,255,255,0.95); }
+      .status-label { display: block; font-size: 0.85rem; color: #475569; margin-bottom: 8px; }
+      .status-value { display: block; font-size: 1.2rem; font-weight: 700; color: #0f172a; }
+      .soc-bar { margin-top: 12px; background: #e2e8f0; border-radius: 999px; height: 14px; overflow: hidden; }
+      .soc-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #34d399, #0ea5e9); width: 0%; }
+      .divider { border: none; border-top: 1px solid #cbd5e1; margin: 24px 0; }
+      a.button { display: inline-block; margin-top: 20px; padding: 10px 16px; background: #1f6feb; color: white; text-decoration: none; border-radius: 6px; }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <h1>FIAT 500 Info Site</h1>
+      <p>Welcome, {{ username }}. Below is the latest vehicle status.</p>
+
+      <div class="vehicle-info" id="vehicleInfo">
+        <div><strong>VIN:</strong> <span id="vinValue">—</span></div>
+        <div><strong>Nickname:</strong> <span id="nicknameValue">—</span></div>
+        <div><strong>Odometer:</strong> <span id="odometerValue">—</span> <span id="odometerUnitValue"></span></div>
+        <div><strong>Last update:</strong> <span id="lastUpdateValue">—</span></div>
+      </div>
+
+      <div class="error-box" id="statusError"></div>
+
+      <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+          <div class="loading-spinner"></div>
+          <div>Loading vehicle data...</div>
+        </div>
+      </div>
+
+      <div class="status-band">
+        <div class="status-grid">
+          <div class="status-item">
+            <span class="status-label">Charging Status</span>
+            <span class="status-value" id="chargingStatusValue">—</span>
+          </div>
+          <div class="status-item">
+            <span class="status-label">State of Charge</span>
+            <span class="status-value" id="socValue">—</span>
+            <div class="soc-bar">
+              <div class="soc-fill" id="socFill"></div>
+            </div>
+          </div>
+          <div class="status-item">
+            <span class="status-label">Remaining Distance</span>
+            <span class="status-value" id="remainingDistanceValue">—</span>
+          </div>
+        </div>
+
+        <div class="status-grid status-grid-secondary">
+          <div class="status-item">
+            <span class="status-label">Charging Level Preference</span>
+            <span class="status-value" id="chargingLevelPreferenceValue">—</span>
+          </div>
+          <div class="status-item">
+            <span class="status-label">Charging Level</span>
+            <span class="status-value" id="chargingLevelValue">—</span>
+          </div>
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <div class="lock-status-row">
+          <div class="status-grid">
+          <div class="status-item">
+            <span class="status-label">Lock Status</span>
+            <span class="status-value" id="lockStatusValue">—</span>
+          </div>
+          <div class="status-item">
+            <span class="status-label">Door Lock</span>
+            <span class="status-value" id="doorLockStatusValue">—</span>
+          </div>
+          <div class="status-item">
+            <span class="status-label">Window Lock</span>
+            <span class="status-value" id="windowLockStatusValue">—</span>
+          </div>
+        </div>
+      </div>
+
+      <a class="button" href="{{ url_for('logout') }}">Log out</a>
+    </div>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const overlay = document.getElementById('loadingOverlay');
+        const errorBox = document.getElementById('statusError');
+        const statusUrl = '{{ url_for('status') }}';
+        let refreshIntervalId;
+
+        function setText(id, value) {
+          const el = document.getElementById(id);
+          if (el) el.textContent = value ?? '—';
+        }
+
+        async function fetchStatus() {
+          try {
+            const response = await fetch(statusUrl, { cache: 'no-store' });
+            if (!response.ok) {
+              throw new Error(`Server returned ${response.status}`);
+            }
+            const data = await response.json();
+            const evStatus = data.ev_status || {};
+            const vehicleInfo = data.vehicle_info || {};
+
+            setText('vinValue', vehicleInfo.vin);
+            setText('nicknameValue', vehicleInfo.nickname);
+            setText('odometerValue', vehicleInfo.odometer);
+            setText('odometerUnitValue', vehicleInfo.odometer_unit);
+            setText('lastUpdateValue', vehicleInfo.last_update);
+            setText('chargingStatusValue', evStatus.charging_status);
+            setText('socValue', evStatus.state_of_charge !== undefined ? `${evStatus.state_of_charge}%` : '—');
+            setText('chargingLevelPreferenceValue', evStatus.charging_level_preference);
+            setText('chargingLevelValue', evStatus.charging_level);
+            setText('remainingDistanceValue', evStatus.remaining_distance);
+            setText('lockStatusValue', evStatus.lock_status);
+            setText('doorLockStatusValue', evStatus.door_lock_status);
+            setText('windowLockStatusValue', evStatus.window_lock_status);
+
+            const socFill = document.getElementById('socFill');
+            if (socFill && evStatus.state_of_charge !== undefined) {
+              socFill.style.width = `${Math.min(Math.max(evStatus.state_of_charge, 0), 100)}%`;
+            }
+
+            const isCharging = evStatus.charging_status === 'CHARGING';
+            if (isCharging && !refreshIntervalId) {
+              refreshIntervalId = setInterval(fetchStatus, 60000);
+            } else if (!isCharging && refreshIntervalId) {
+              clearInterval(refreshIntervalId);
+              refreshIntervalId = undefined;
+            }
+          } catch (err) {
+            if (errorBox) {
+              errorBox.textContent = `Unable to load vehicle data: ${err.message}`;
+              errorBox.style.display = 'block';
+            }
+          } finally {
+            if (overlay) overlay.style.display = 'none';
+          }
+        }
+
+        fetchStatus();
+      });
+    </script>
+  </body>
+</html>
