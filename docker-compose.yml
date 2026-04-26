@@ -1,0 +1,8 @@
+services:
+  uconnect:
+    image: uconnect-info
+    build: .
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./.env:/app/.env:ro
