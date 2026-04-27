@@ -8,6 +8,8 @@ from .fiat import Fiat, load_env
 from .users import VALID_USERS
 
 print("Loading environment variables...")
+print("Current working directory:", Path.cwd())
+print("Script location:", Path(__file__).resolve())
 print(f"Looking for .env file at: {Path(__file__).resolve().parents[1] / '.env'}")
 load_env(Path(__file__).resolve().parents[1] / ".env")
 
