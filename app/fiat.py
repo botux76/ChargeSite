@@ -89,6 +89,11 @@ class Fiat:
             "nickname": nickname,
             "odometer": odometer,
             "odometer_unit": odometer_unit,
+            "door_driver_locked": self.vehicle.door_driver_locked,
+            "door_passenger_locked": self.vehicle.door_passenger_locked,
+            "window_driver_closed": self.vehicle.window_driver_closed,
+            "window_passenger_closed": self.vehicle.window_passenger_closed,
+            "trunk_locked": self.vehicle.trunk_locked
         }
 
         print("\n" + "=" * 25)

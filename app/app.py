@@ -7,7 +7,6 @@ from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
 from .fiat import Fiat, load_env
 from .users import VALID_USERS
 
-print("Loading environment variables...")
 print(f"Looking for .env file at: {Path(__file__).resolve().parents[1] / '.env'}")
 load_env(Path(__file__).resolve().parents[1] / ".env")
 
@@ -91,12 +90,21 @@ def status(username: str):
 
 def get_ev_status(username: str) -> dict:
     result = fiat_client.update()
+
+    door_driver_status = "LOCKED" if result["door_driver_locked"] else "UNLOCKED"
+    door_passenger_status = "LOCKED" if result["door_passenger_locked"] else "UNLOCKED"
+    overall_lock_status = "LOCKED" if door_driver_status == "LOCKED" and door_passenger_status == "LOCKED" else "UNLOCKED"
+
     return {
         "charging_status": result["charging_status"],
         "state_of_charge": result["state_of_charge"],
-        "lock_status": "LOCKED",
-        "door_lock_status": "LOCKED",
+        "lock_status": overall_lock_status,
+        "door_lock_status": overall_lock_status,
+        "door_lock_left_status": door_driver_status,
+        "door_lock_right_status": door_passenger_status,
         "window_lock_status": "UNLOCKED",
+        "window_lock_left_status": "UNLOCKED",
+        "window_lock_right_status": "UNLOCKED",
         "remaining_distance": f"{result['remaining_range']} km",
     }
 

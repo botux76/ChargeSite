@@ -47,6 +47,11 @@
       .status-item { padding: 18px; border: 1px solid #dbeafe; border-radius: 10px; background: rgba(255,255,255,0.95); }
       .status-label { display: block; font-size: 0.85rem; color: #475569; margin-bottom: 8px; }
       .status-value { display: block; font-size: 1.2rem; font-weight: 700; color: #0f172a; }
+      .lock-icon { display: inline-flex; width: 2.8rem; height: 2.8rem; vertical-align: middle; }
+      .lock-icon svg { width: 100%; height: 100%; }
+      .lock-icon.locked { color: #0f172a; }
+      .lock-icon.unlocked { color: #ef4444; }
+      .lock-subitem { display: block; margin-top: 6px; font-size: 0.95rem; color: #0f172a; }
       .soc-bar { margin-top: 12px; background: #e2e8f0; border-radius: 999px; height: 14px; overflow: hidden; }
       .soc-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #34d399, #0ea5e9); width: 0%; }
       .divider { border: none; border-top: 1px solid #cbd5e1; margin: 24px 0; }
@@ -111,15 +116,24 @@
           <div class="status-grid">
           <div class="status-item">
             <span class="status-label">Lock Status</span>
-            <span class="status-value" id="lockStatusValue">—</span>
+            <span class="status-value">
+              <span id="lockIconLocked" class="lock-icon locked" style="display:none;">{% include 'locked.svg' %}</span>
+              <span id="lockIconUnlocked" class="lock-icon unlocked" style="display:none;">{% include 'unlocked.svg' %}</span>
+            </span>
           </div>
           <div class="status-item">
             <span class="status-label">Door Lock</span>
-            <span class="status-value" id="doorLockStatusValue">—</span>
+            <span class="status-value">
+              <span class="lock-subitem"><strong>Left:</strong> <span id="doorLockLeftStatusValue">—</span></span>
+              <span class="lock-subitem"><strong>Right:</strong> <span id="doorLockRightStatusValue">—</span></span>
+            </span>
           </div>
           <div class="status-item">
             <span class="status-label">Window Lock</span>
-            <span class="status-value" id="windowLockStatusValue">—</span>
+            <span class="status-value">
+              <span class="lock-subitem"><strong>Left:</strong> <span id="windowLockLeftStatusValue">—</span></span>
+              <span class="lock-subitem"><strong>Right:</strong> <span id="windowLockRightStatusValue">—</span></span>
+            </span>
           </div>
         </div>
       </div>
@@ -137,6 +151,23 @@
         function setText(id, value) {
           const el = document.getElementById(id);
           if (el) el.textContent = value ?? '—';
+        }
+
+        function updateLockIcon(status) {
+          const locked = document.getElementById('lockIconLocked');
+          const unlocked = document.getElementById('lockIconUnlocked');
+          if (!locked || !unlocked) return;
+
+          if (status === 'UNLOCKED') {
+            locked.style.display = 'none';
+            unlocked.style.display = 'inline-flex';
+          } else if (status === 'LOCKED') {
+            locked.style.display = 'inline-flex';
+            unlocked.style.display = 'none';
+          } else {
+            locked.style.display = 'none';
+            unlocked.style.display = 'none';
+          }
         }
 
         async function fetchStatus() {
@@ -159,9 +190,11 @@
             setText('chargingLevelPreferenceValue', evStatus.charging_level_preference);
             setText('chargingLevelValue', evStatus.charging_level);
             setText('remainingDistanceValue', evStatus.remaining_distance);
-            setText('lockStatusValue', evStatus.lock_status);
-            setText('doorLockStatusValue', evStatus.door_lock_status);
-            setText('windowLockStatusValue', evStatus.window_lock_status);
+            updateLockIcon(evStatus.lock_status);
+            setText('doorLockLeftStatusValue', evStatus.door_lock_left_status);
+            setText('doorLockRightStatusValue', evStatus.door_lock_right_status);
+            setText('windowLockLeftStatusValue', evStatus.window_lock_left_status);
+            setText('windowLockRightStatusValue', evStatus.window_lock_right_status);
 
             const socFill = document.getElementById('socFill');
             if (socFill && evStatus.state_of_charge !== undefined) {
