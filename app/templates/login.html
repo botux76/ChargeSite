@@ -1,30 +1,53 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <title>Login</title>
-    <style>
-      body { font-family: Arial, sans-serif; background: #f7f9fc; margin: 0; padding: 0; }
-      .container { width: 320px; margin: 100px auto; padding: 24px; background: white; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
-      input { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #bbb; border-radius: 4px; }
-      button { width: 100%; padding: 10px; border: none; border-radius: 4px; background: #1f6feb; color: white; cursor: pointer; }
-      button:hover { background: #155fca; }
-      .error { color: #b00020; margin-bottom: 12px; }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <h1>Login</h1>
-      {% if error %}
-        <div class="error">{{ error }}</div>
-      {% endif %}
-      <form method="post">
-        <label for="username">Username</label>
-        <input type="text" id="username" name="username" required autofocus>
-        <label for="password">Password</label>
-        <input type="password" id="password" name="password" required>
-        <button type="submit">Sign in</button>
-      </form>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - ChargeSite</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="page-shell">
+        <div class="hero-panel">
+            <div class="login-card">
+                <div class="brand">
+                    <div class="brand-icon">⚡</div>
+                    <div>
+                        <h1>ChargeSite</h1>
+                        <p>Access your EV dashboard and charging status.</p>
+                    </div>
+                </div>
+
+                {% if error %}
+                <div style="background: #fee2e2; color: #b91c1c; padding: 0.75rem; border-radius: 0.5rem; font-size: 0.9rem; font-weight: 500;">
+                    {{ error }}
+                </div>
+                {% endif %}
+
+                <form class="login-form" method="POST">
+                    <div>
+                        <label for="username">Username</label>
+                        <input type="text" id="username" name="username" placeholder="e.g. admin" required>
+                    </div>
+                    <div>
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" placeholder="••••••••" required>
+                    </div>
+                    
+                    <div class="options-row">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="remember"> Remember me
+                        </label>
+                        <a href="#" class="link-secondary">Forgot password?</a>
+                    </div>
+
+                    <button type="submit" class="btn-primary">Sign In</button>
+                </form>
+            </div>
+        </div>
+        <p class="footnote">
+            Need help? <a href="https://github.com/tobias/ChargeSite">View Documentation</a>
+        </p>
     </div>
-  </body>
+</body>
 </html>

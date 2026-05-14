@@ -95,6 +95,10 @@ def get_ev_status(username: str) -> dict:
     door_passenger_status = "LOCKED" if result["door_passenger_locked"] else "UNLOCKED"
     overall_lock_status = "LOCKED" if door_driver_status == "LOCKED" and door_passenger_status == "LOCKED" else "UNLOCKED"
 
+    window_driver_status = "CLOSED" if result["window_driver_closed"] else "OPEN"
+    window_passenger_status = "CLOSED" if result["window_passenger_closed"] else "OPEN"
+    overall_window_status = "CLOSED" if window_driver_status == "CLOSED" and window_passenger_status == "CLOSED" else "OPEN"
+
     return {
         "charging_status": result["charging_status"],
         "state_of_charge": result["state_of_charge"],
@@ -102,9 +106,9 @@ def get_ev_status(username: str) -> dict:
         "door_lock_status": overall_lock_status,
         "door_lock_left_status": door_driver_status,
         "door_lock_right_status": door_passenger_status,
-        "window_lock_status": "UNLOCKED",
-        "window_lock_left_status": "UNLOCKED",
-        "window_lock_right_status": "UNLOCKED",
+        "window_lock_status": overall_window_status,
+        "window_lock_left_status": window_driver_status,
+        "window_lock_right_status": window_passenger_status,
         "remaining_distance": f"{result['remaining_range']} km",
     }
 
@@ -138,4 +142,4 @@ def main(username: str):
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="127.0.0.1", port=5000, debug=True)
